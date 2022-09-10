@@ -47,7 +47,9 @@ class Messenger:
         :param msg:
         :return:
         """
-        self.s.sendall(msg)
+        self.s.send(msg)
+        confirmation = self.s.recv(1024).decode()
+        print('confirm' + confirmation)
 
 
 class AutoWater:

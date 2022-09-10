@@ -13,12 +13,13 @@ PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
 
 def connect(s):
-    conn, addr = s.accept()
-    with conn:
+    clientsocket, addr = s.accept()
+    with clientsocket:
         print(f"Connected by {addr}")
         while True:
-            data = conn.recv(1024)
+            data = clientsocket.recv(1024)
             print(f'{data}\n')
+            clientsocket.send(bytes('Received', 'utf-8'))
             if not data:  # Nothing is being received/connection lost.
                 break  # Break and return nothing. __name__ __main__ will try again.
 
