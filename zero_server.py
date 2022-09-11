@@ -41,8 +41,8 @@ if __name__ == '__main__':
         client, addr = s.accept()
         with client:
             while True:
-                data = client.recv(1024).decode()
-                print(data)
+                data = client.recv(1024)
+                print(data.decode())
                 client.send(bytes('Received', 'utf-8'))
-                sheet.append_row([f'{datetime.datetime.now().strftime("%d/%m/%Y %H:00:00")}', data])
+                sheet.append_row([f'{datetime.datetime.now().strftime("%d/%m/%Y %H:00:00")}', data.decode()])
                 time.sleep(1)
