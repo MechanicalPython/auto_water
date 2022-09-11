@@ -23,6 +23,7 @@ import neopixel
 import time
 from machine import Pin
 import math
+import ntptime
 
 
 def connect_to_wifi():
@@ -31,6 +32,7 @@ def connect_to_wifi():
     wlan.connect(secrets.SSID, secrets.PASSWORD)
     while wlan.isconnected() is False:
         time.sleep(1)
+    ntptime.settime()
 
 
 class Messenger:
@@ -49,7 +51,7 @@ class Messenger:
         """
         self.s.send(msg)
         confirmation = self.s.recv(1024).decode()
-        print('confirm' + confirmation)
+        print(confirmation)
 
 
 class AutoWater:
@@ -58,24 +60,24 @@ class AutoWater:
     """
 
     def __init__(self, vcc_pin=22, adc_pin=26, neo_pin=1):
-        self.vcc_pin = vcc_pin
+        machine.Pin(vcc_pin, Pin.OUT).on()  # Turn moisture sensor power on.
         self.adc_pin = machine.Pin(adc_pin)  # Pin 31/GPIO 26/ADC 0.
+        self.sensor = machine.ADC(self.adc_pin)
         self.pump = Pin(18, Pin.OUT)  # Relay GPIO pin is pin 18.
         self.np = neopixel.NeoPixel(Pin(neo_pin), 12)
         self.max = 54000  # 0% wet.
         self.min = 21000  # 100% wet
         # All colours set to low brightness.
-        self.red = (4, 0, 0)
-        self.green = (0, 4, 0)
-        self.blue = (0, 0, 4)
+        self.red = (1, 0, 0)
+        self.green = (0, 1, 0)
+        self.blue = (0, 0, 1)
         self.off = (0, 0, 0)
 
     def get_moisture(self, number_of_readings):
         # New capacitive sensor can be constantly powered so no need to turn the sensor on and off.
-        sensor = machine.ADC(self.adc_pin)
         total = 0
         for x in range(0, number_of_readings):
-            total += sensor.read_u16()
+            total += self.sensor.read_u16()
         value = total / number_of_readings
         return value
 
@@ -141,5 +143,14 @@ if __name__ == '__main__':
     while True:
         measurement = auto_water.main()
         print(measurement)
-        messenger.send_msg(f'{time.time()}: {measurement}')
+        try:
+            messenger.send_msg(f'{time.localtime()}: {measurement}')
+            auto_water.np[11] = auto_water.off
+            auto_water.np.write()
+
+        except OSError as e:
+            print(e)
+            auto_water.np[11] = auto_water.blue
+            auto_water.np.write()
+
 
