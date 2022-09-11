@@ -34,32 +34,6 @@ def connect_to_wifi():
     print(f'Connected to {secrets.SSID}')
 
 
-# class Messenger:
-#     def __init__(self):
-#         self.host = "192.168.220.1"  # The IP of the raspberry pi.
-#         self.port = 65432  # The port used by the server
-#         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#         self.s.connect((self.host, self.port))
-#
-#     def send_msg(self, msg):
-#         """
-#         Send msg as a string.
-#         :param msg:
-#         :return:
-#         """
-#         self.s.send(msg)
-#         confirmation = self.s.recv(1024).decode()
-#         print(confirmation)
-
-def send_msg(host, port, msg):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
-    s.send(msg)
-    confirmation = s.recv(1024).decode()
-    print(confirmation)
-    s.close()
-
-
 class AutoWater:
     """
     The min and max readings for the sensor changes from 50,000 to 30-20000
@@ -146,8 +120,13 @@ class AutoWater:
 if __name__ == '__main__':
     connect_to_wifi()
     auto_water = AutoWater()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect(("192.168.220.1", 65432))
+
     while True:
         measurement = auto_water.main()
         print(measurement)
-        send_msg("192.168.220.1", 65432, measurement)
+        s.send(bytes(f'{measurement}', 'utf-8'))
+        confirmation = s.recv(1024).decode()
+        print(confirmation)
 
