@@ -31,25 +31,33 @@ def connect_to_wifi():
     wlan.connect(secrets.SSID, secrets.PASSWORD)
     while wlan.isconnected() is False:
         time.sleep(1)
+    print(f'Connected to {secrets.SSID}')
 
 
-class Messenger:
-    def __init__(self):
-        connect_to_wifi()
-        self.host = "192.168.220.1"  # The IP of the raspberry pi.
-        self.port = 65432  # The port used by the server
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.connect((self.host, self.port))
+# class Messenger:
+#     def __init__(self):
+#         self.host = "192.168.220.1"  # The IP of the raspberry pi.
+#         self.port = 65432  # The port used by the server
+#         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#         self.s.connect((self.host, self.port))
+#
+#     def send_msg(self, msg):
+#         """
+#         Send msg as a string.
+#         :param msg:
+#         :return:
+#         """
+#         self.s.send(msg)
+#         confirmation = self.s.recv(1024).decode()
+#         print(confirmation)
 
-    def send_msg(self, msg):
-        """
-        Send msg as a string.
-        :param msg:
-        :return:
-        """
-        self.s.send(msg)
-        confirmation = self.s.recv(1024).decode()
-        print(confirmation)
+def send_msg(host, port, msg):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((host, port))
+    s.send(msg)
+    confirmation = s.recv(1024).decode()
+    print(confirmation)
+    s.close()
 
 
 class AutoWater:
@@ -136,19 +144,10 @@ class AutoWater:
 
 
 if __name__ == '__main__':
+    connect_to_wifi()
     auto_water = AutoWater()
-    messenger = Messenger()
     while True:
         measurement = auto_water.main()
         print(measurement)
-        try:
-            messenger.send_msg(f'{measurement}')
-            auto_water.np[11] = auto_water.off
-            auto_water.np.write()
-
-        except OSError as e:
-            print(e)
-            auto_water.np[11] = auto_water.blue
-            auto_water.np.write()
-
+        send_msg("192.168.220.1", 65432, measurement)
 
