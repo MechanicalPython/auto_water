@@ -40,6 +40,7 @@ if __name__ == '__main__':
         s.listen()
         client, addr = s.accept()
         with client:
+            client.send(bytes('Received', 'utf-8'))  # If pico is handing for a response, this should kick it.
             while True:
                 try:
                     data = client.recv(1024)

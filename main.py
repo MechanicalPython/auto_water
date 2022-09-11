@@ -121,18 +121,18 @@ class AutoWater:
 if __name__ == '__main__':
     connect_to_wifi()
     auto_water = AutoWater()
-    wdt = WDT(timeout=8388)  # 8 second timeout.
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(("192.168.220.1", 65432))
+    try:
+        s.connect(("192.168.220.1", 65432))
+    except OSError:
+        time.sleep(60)
+        machine.soft_reset()
 
     while True:  # Keep throwing data at the server.
         try:
             measurement = auto_water.main()
             print(measurement)
             s.send(bytes(f'{measurement}', 'utf-8'))
-            confirmation = s.recv(1024).decode()
-            print(confirmation)
-            wdt.feed()
+            confirmation = s.recv(1024)
         except OSError:
             time.sleep(1)
-
