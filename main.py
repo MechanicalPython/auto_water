@@ -23,7 +23,6 @@ import neopixel
 import time
 from machine import Pin
 import math
-import ntptime
 
 
 def connect_to_wifi():
@@ -32,7 +31,6 @@ def connect_to_wifi():
     wlan.connect(secrets.SSID, secrets.PASSWORD)
     while wlan.isconnected() is False:
         time.sleep(1)
-    ntptime.settime()
 
 
 class Messenger:
@@ -144,7 +142,7 @@ if __name__ == '__main__':
         measurement = auto_water.main()
         print(measurement)
         try:
-            messenger.send_msg(f'{time.localtime()}: {measurement}')
+            messenger.send_msg(f'{measurement}')
             auto_water.np[11] = auto_water.off
             auto_water.np.write()
 
