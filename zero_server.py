@@ -34,7 +34,7 @@ class PostToSheets:
 
 if __name__ == '__main__':
     sheet = PostToSheets('FernWater')
-
+    last_post = time.time()
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("192.168.220.1", 65432))
         s.listen()
@@ -44,5 +44,8 @@ if __name__ == '__main__':
                 data = client.recv(1024)
                 print(data.decode())
                 client.send(bytes('Received', 'utf-8'))
-                sheet.append_row([f'{datetime.datetime.now().strftime("%d/%m/%Y %H:00:00")}', data.decode()])
-                time.sleep(1)
+                if time.time() - last_post > (10*60):  # Receive data but only post results every 10 minutes.
+                    sheet.append_row([f'{datetime.datetime.now().strftime("%d/%m/%Y %H:00:00")}', data.decode()])
+                    last_post = time.time()
+                else:
+                    pass
