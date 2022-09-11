@@ -13,7 +13,7 @@ import os
 
 HOST = "192.168.220.1"  # The pi server IP address that the pico connects to.
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
-credentials_file = f"{os.path.dirname(os.path(__file__))}./autowater-360216-abde0af2cb6b.json"
+credentials_file = f"{os.path.dirname(os.path.abspath(__file__))}./autowater-360216-abde0af2cb6b.json"
 
 class PostToSheets:
     """
