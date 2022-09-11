@@ -121,18 +121,15 @@ class AutoWater:
 if __name__ == '__main__':
     connect_to_wifi()
     auto_water = AutoWater()
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        s.connect(("192.168.220.1", 65432))
-    except OSError:
-        time.sleep(60)
-        machine.soft_reset()
-
-    while True:  # Keep throwing data at the server.
+    while True:
+        measurement = auto_water.main()
+        print(measurement)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            measurement = auto_water.main()
-            print(measurement)
-            s.send(bytes(f'{measurement}', 'utf-8'))
-            confirmation = s.recv(1024)
-        except OSError:
-            time.sleep(1)
+            s.connect(("192.168.220.1", 65432))
+        except OSError as e:
+            machine.soft_reset()
+        s.send(bytes(f'{measurement}', 'utf-8'))
+        s.close()
+        time.sleep(60)
+

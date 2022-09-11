@@ -38,18 +38,12 @@ if __name__ == '__main__':
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("192.168.220.1", 65432))
         s.listen()
-        client, addr = s.accept()
-        with client:
-            client.send(bytes('Received', 'utf-8'))  # If pico is handing for a response, this should kick it.
-            while True:
-                try:
-                    data = client.recv(1024)
-                    print(data.decode())
-                    client.send(bytes('Received', 'utf-8'))
-                    if time.time() - last_post > (10*60):  # Receive data but only post results every 10 minutes.
-                        sheet.append_row([f'{datetime.datetime.now().strftime("%d/%m/%Y %H:%M:00")}', float(data.decode())])
-                        last_post = time.time()
-                    else:
-                        pass
-                except ConnectionResetError:
-                    time.sleep(1)
+        while True:
+            client, addr = s.accept()
+            with client:
+                data = client.recv(1024)
+                print(data)
+                if time.time() - last_post > (10*60):  # Receive data but only post results every 10 minutes.
+                    sheet.append_row([f'{datetime.datetime.now().strftime("%d/%m/%Y %H:%M:00")}', float(data.decode())])
+                    last_post = time.time()
+
