@@ -41,11 +41,14 @@ if __name__ == '__main__':
         client, addr = s.accept()
         with client:
             while True:
-                data = client.recv(1024)
-                print(data.decode())
-                client.send(bytes('Received', 'utf-8'))
-                if time.time() - last_post > (10*60):  # Receive data but only post results every 10 minutes.
-                    sheet.append_row([f'{datetime.datetime.now().strftime("%d/%m/%Y %H:%M:00")}', float(data.decode())])
-                    last_post = time.time()
-                else:
-                    pass
+                try:
+                    data = client.recv(1024)
+                    print(data.decode())
+                    client.send(bytes('Received', 'utf-8'))
+                    if time.time() - last_post > (10*60):  # Receive data but only post results every 10 minutes.
+                        sheet.append_row([f'{datetime.datetime.now().strftime("%d/%m/%Y %H:%M:00")}', float(data.decode())])
+                        last_post = time.time()
+                    else:
+                        pass
+                except ConnectionResetError:
+                    time.sleep(1)

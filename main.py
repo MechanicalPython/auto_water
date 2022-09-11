@@ -126,9 +126,13 @@ if __name__ == '__main__':
     s.connect(("192.168.220.1", 65432))
 
     while True:  # Keep throwing data at the server.
-        measurement = auto_water.main()
-        print(measurement)
-        s.send(bytes(f'{measurement}', 'utf-8'))
-        confirmation = s.recv(1024).decode()
-        print(confirmation)
-        wdt.feed()
+        try:
+            measurement = auto_water.main()
+            print(measurement)
+            s.send(bytes(f'{measurement}', 'utf-8'))
+            confirmation = s.recv(1024).decode()
+            print(confirmation)
+            wdt.feed()
+        except OSError:
+            time.sleep(1)
+
