@@ -9,15 +9,11 @@ import socket
 import time
 import gspread
 import os
-from datetime import datetime, timedelta
 
 
 HOST = "192.168.220.1"  # The pi server IP address that the pico connects to.
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
-resources_file = f"{os.path.dirname(os.path.dirname(os.path.abspath(__file__)))}/Resources"
-credentials_file = f"{resources_file}/autowater-360216-abde0af2cb6b.json"
-sheet_id_file = f'{resources_file}/sheet_id'
-
+credentials_file = f"{os.path.dirname(os.path.(__file__))}./autowater-360216-abde0af2cb6b.json"
 
 class PostToSheets:
     """
