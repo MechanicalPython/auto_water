@@ -15,24 +15,12 @@ and then wet to dry takes 10 seconds in a natural log increase pattern.
 4. Change lights.
 
 """
-from imports import secrets
-import network
-import socket
+
 import machine
 import neopixel
 import time
 from machine import Pin
 import math
-from machine import WDT
-
-
-def connect_to_wifi():
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    wlan.connect(secrets.SSID, secrets.PASSWORD)
-    while wlan.isconnected() is False:
-        time.sleep(1)
-    print(f'Connected to {secrets.SSID}')
 
 
 class AutoWater:
@@ -113,23 +101,14 @@ class AutoWater:
         moisture = self.get_moisture(1000)
         moisture = self.convert_raw_to_perc(moisture)
         self.set_lights(moisture)
-        if moisture < 40:  # High moisture level to keep the plant watered. This value may need to be altered.
-            self.pump_water(4)
+        if moisture < 60:  # High moisture level to keep the plant watered. This value may need to be altered.
+            self.pump_water(5)
         return moisture
 
 
 if __name__ == '__main__':
-    connect_to_wifi()
     auto_water = AutoWater()
     while True:
         measurement = auto_water.main()
-        print(measurement)
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            s.connect(("192.168.220.1", 65432))
-        except OSError as e:
-            machine.soft_reset()
-        s.send(bytes(f'{measurement}', 'utf-8'))
-        s.close()
         time.sleep(60)
 
