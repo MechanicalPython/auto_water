@@ -21,9 +21,9 @@ import socket
 import machine
 import neopixel
 import time
+import requests
 from machine import Pin
 import math
-from machine import WDT
 
 
 def connect_to_wifi():
@@ -118,18 +118,33 @@ class AutoWater:
         return moisture
 
 
-if __name__ == '__main__':
-    connect_to_wifi()
-    auto_water = AutoWater()
-    while True:
-        measurement = auto_water.main()
-        print(measurement)
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            s.connect(("192.168.220.1", 65432))
-        except OSError as e:
-            machine.soft_reset()
-        s.send(bytes(f'{measurement}', 'utf-8'))
-        s.close()
-        time.sleep(60)
+def post_to_sheet(data):
+    spreadsheet_id = '1ttF8UqHQJObrt6sr1N9UgYTzUR8WP56yIxjcMWVZcpw'
+    API_Key = "AIzaSyAWk3gh2IgLWSdosBmNBRm-hhnQftFXvUE"
+    url = f"https://sheets.googleapis.com/v4/spreadsheets/{spreadsheet_id}/values/A1%3AA2:append?insertDataOption=INSERT_ROWS&valueInputOption=RAW&key={API_Key}"
+    data = {
+        "values": [
+            [
+                "2"
+            ]
+        ]
+    }
+    requests.post(url, data=data)
 
+
+if __name__ == '__main__':
+    post_to_sheet('1')
+
+    # connect_to_wifi()
+    # auto_water = AutoWater()
+    # while True:
+    #     measurement = auto_water.main()
+    #     print(measurement)
+    #     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #     try:
+    #         s.connect(("192.168.220.1", 65432))
+    #     except OSError as e:
+    #         machine.soft_reset()
+    #     s.send(bytes(f'{measurement}', 'utf-8'))
+    #     s.close()
+    #     time.sleep(60)

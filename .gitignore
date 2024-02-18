@@ -1,3 +1,5 @@
 /imports/
 /venv/
+.DS_Store
+.idea
 /autowater-360216-abde0af2cb6b.json
